@@ -5,8 +5,14 @@ using UnityEngine.UI;
 
 public class Health : MonoBehaviour
 {
+
+    [SerializeField] PlayerMovment playermov;
+
     [SerializeField] Slider healthBar;
     [SerializeField] Slider stamina;
+
+    [SerializeField] Material originalMaterial, hitMaterial;
+    [SerializeField] SpriteRenderer spriteRend;
 
     int maxHp = 100;
     int currentHp;
@@ -14,6 +20,7 @@ public class Health : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        originalMaterial = spriteRend.material;
         currentHp = maxHp;
 
         healthBar.maxValue = maxHp;
@@ -27,8 +34,21 @@ public class Health : MonoBehaviour
         
     }
 
-    public void takeDamage(int damage)
+  
+    public IEnumerator takeDamage(int damage)
     {
+        playermov.stuned = true;
         currentHp -= damage;
+        spriteRend.material = hitMaterial;
+
+        yield return new WaitForSeconds(0.1f);
+        spriteRend.material = originalMaterial;
+
+        yield return new WaitForSeconds(0.2f);
+       
+            playermov.stuned = false;
+        
+
+
     }
 }

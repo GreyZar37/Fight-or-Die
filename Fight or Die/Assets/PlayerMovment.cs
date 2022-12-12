@@ -32,10 +32,13 @@ public class PlayerMovment : MonoBehaviour
 
     [SerializeField] LayerMask ground, enemyLayer;
     [SerializeField] Transform legs;
-    bool isgrounded;
+    public bool isgrounded;
 
     float horizontal;
     Collider2D enemyCollider;
+
+    public bool stuned;
+    int side;
 
    [SerializeField] Transform UpperCut, mediumCut, Lowercut;
 
@@ -50,7 +53,7 @@ public class PlayerMovment : MonoBehaviour
     {
         if(playerNum == player.playerOne)
         {
-            if(attacking == false)
+            if(attacking == false && stuned == false)
             {
                 horizontal = Input.GetAxisRaw("HorizontalP1");
                 if (Input.GetButtonDown("JumpP1"))
@@ -84,13 +87,14 @@ public class PlayerMovment : MonoBehaviour
         }
         else
         {
-            if (attacking == false)
+            if (attacking == false && stuned == false)
             {
                 horizontal = Input.GetAxisRaw("HorizontalP2");
-                if (Input.GetButtonDown("JumpP2"))
+                if (Input.GetAxisRaw("JumpP2") > 0.7f)
                 {
                     jump();
                 }
+                print(Input.GetAxisRaw("JumpP2"));
 
                 if (Input.GetButtonDown("UpperCutP2"))
                 {
@@ -117,18 +121,30 @@ public class PlayerMovment : MonoBehaviour
 
         isgrounded = Physics2D.OverlapCircle(legs.transform.position, 0.1f, ground);
 
-        rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+        if(stuned == false || isgrounded)
+        {
+            rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
 
-        if((transform.position.x - enemy.transform.position.x) > 0)
+        }
+        else if (stuned == true && isgrounded == false)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
+        }
+
+        if ((transform.position.x - enemy.transform.position.x) > 0)
         {
             transform.rotation = Quaternion.Euler(0, 180, 0);
+            side = -1;
+
         }
         else
         {
             transform.rotation = Quaternion.Euler(0, 0, 0);
+            side = 1;
+
         }
 
-        if(currentTimer >= 0)
+        if (currentTimer >= 0)
         {
             currentTimer -= Time.deltaTime;
         }
@@ -137,10 +153,21 @@ public class PlayerMovment : MonoBehaviour
             attacking = false;
         }
 
-        if (attacking && isgrounded == true)
+        if (attacking && isgrounded == true ||stuned && isgrounded == true)
         {
             horizontal = 0;
         }
+        else
+        {
+            horizontal = 0;
+        }
+       
+
+        if (isgrounded)
+        {
+            rb.gravityScale = 6;
+        }
+       
     }
 
     void jump()
@@ -161,14 +188,38 @@ public class PlayerMovment : MonoBehaviour
 
                 case attackType.UpperCut_:
                     enemyCollider = Physics2D.OverlapCircle(UpperCut.position, attackRadius, enemyLayer);
+                    enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
+                    enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
+
                     damage = uDamage;
+
                     break;
                 case attackType.mediumCut_:
                     enemyCollider = Physics2D.OverlapCircle(mediumCut.position, attackRadius, enemyLayer);
+                    enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
+                    if (enemyCollider.GetComponent<PlayerMovment>().isgrounded == false)
+                    {
+
+                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(2 * side, 5), ForceMode2D.Impulse);
+
+
+                    }
+
                     damage = mDamage;
                     break;
                 case attackType.Lowercut_:
                     enemyCollider = Physics2D.OverlapCircle(Lowercut.position, attackRadius, enemyLayer);
+                    enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
+
+                    if (isgrounded == false)
+                    {
+
+                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
+
+
+                    }
+
+
                     damage = lDamage;
                     break;
                 default:
@@ -176,7 +227,7 @@ public class PlayerMovment : MonoBehaviour
             }
             if(enemyCollider != null)
             {
-                enemyCollider.GetComponent<Health>().takeDamage(damage);
+              StartCoroutine(enemyCollider.GetComponent<Health>().takeDamage(damage));
 
             }
             currentTimer = attackCooldown;
