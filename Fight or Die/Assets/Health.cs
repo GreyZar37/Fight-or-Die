@@ -14,12 +14,18 @@ public class Health : MonoBehaviour
     [SerializeField] Material originalMaterial, hitMaterial;
     [SerializeField] SpriteRenderer spriteRend;
 
+    [SerializeField] GameManager gameMan;
+
+    Animator anim;
+
     int maxHp = 100;
-    int currentHp;
+    public int currentHp;
 
     // Start is called before the first frame update
     void Start()
     {
+        gameMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
+        anim = GetComponent<Animator>();
         originalMaterial = spriteRend.material;
         currentHp = maxHp;
 
@@ -37,8 +43,17 @@ public class Health : MonoBehaviour
   
     public IEnumerator takeDamage(int damage)
     {
+        anim.SetTrigger("Hit");
         playermov.stuned = true;
         currentHp -= damage;
+
+      
+         if (currentHp <= 0 && GameManager.gameState == gameState.Combat)
+        {
+            StartCoroutine(gameMan.endGame(playermov.playerNum));
+            GameManager.gameState = gameState.ending;
+        }
+
         spriteRend.material = hitMaterial;
 
         yield return new WaitForSeconds(0.1f);
@@ -48,7 +63,7 @@ public class Health : MonoBehaviour
        
             playermov.stuned = false;
         
-
+       
 
     }
 }

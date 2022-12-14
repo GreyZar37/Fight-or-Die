@@ -40,12 +40,15 @@ public class PlayerMovment : MonoBehaviour
     public bool stuned;
     int side;
 
+    Animator anim;
+
    [SerializeField] Transform UpperCut, mediumCut, Lowercut;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -53,7 +56,7 @@ public class PlayerMovment : MonoBehaviour
     {
         if(playerNum == player.playerOne)
         {
-            if(attacking == false && stuned == false)
+            if(attacking == false && stuned == false && GameManager.gameState == gameState.Combat)
             {
                 horizontal = Input.GetAxisRaw("HorizontalP1");
                 if (Input.GetButtonDown("JumpP1"))
@@ -64,18 +67,25 @@ public class PlayerMovment : MonoBehaviour
                 if (Input.GetButtonDown("UpperCutP1"))
                 {
                     AttackType = attackType.UpperCut_;
+                    anim.SetTrigger("UpperCut");
+
                     attack(AttackType);
 
                 }
                 else if (Input.GetButtonDown("MediumCutP1"))
                 {
                     AttackType = attackType.mediumCut_;
+                    anim.SetTrigger("MediumCut");
+
                     attack(AttackType);
 
                 }
                 else if (Input.GetButtonDown("LowerCutP1"))
                 {
+
                     AttackType = attackType.Lowercut_;
+                    anim.SetTrigger("LowerCut");
+
                     attack(AttackType);
 
                 }
@@ -87,29 +97,39 @@ public class PlayerMovment : MonoBehaviour
         }
         else
         {
-            if (attacking == false && stuned == false)
+            if (attacking == false && stuned == false && GameManager.gameState == gameState.Combat)
             {
                 horizontal = Input.GetAxisRaw("HorizontalP2");
+
                 if (Input.GetAxisRaw("JumpP2") > 0.7f)
                 {
                     jump();
                 }
-                print(Input.GetAxisRaw("JumpP2"));
 
                 if (Input.GetButtonDown("UpperCutP2"))
                 {
                     AttackType = attackType.UpperCut_;
+                    anim.SetTrigger("UpperCut");
+                    print("U");
+
                     attack(AttackType);
                 }
                 else if (Input.GetButtonDown("MediumCutP2"))
                 {
                     AttackType = attackType.mediumCut_;
+                    anim.SetTrigger("MediumCut");
+                    print("M");
+
                     attack(AttackType);
 
                 }
                 else if (Input.GetButtonDown("LowerCutP2"))
                 {
+
                     AttackType = attackType.Lowercut_;
+                    anim.SetTrigger("LowerCut");
+                    print("L");
+
                     attack(AttackType);
 
                 }
@@ -117,6 +137,7 @@ public class PlayerMovment : MonoBehaviour
           
           
         }
+        anim.SetFloat("Velocity", Mathf.Abs(horizontal));
 
 
         isgrounded = Physics2D.OverlapCircle(legs.transform.position, 0.1f, ground);
@@ -168,6 +189,9 @@ public class PlayerMovment : MonoBehaviour
             rb.gravityScale = 6;
         }
        
+        
+        
+
     }
 
     void jump()
@@ -188,38 +212,50 @@ public class PlayerMovment : MonoBehaviour
 
                 case attackType.UpperCut_:
                     enemyCollider = Physics2D.OverlapCircle(UpperCut.position, attackRadius, enemyLayer);
-                    enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
-                    enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
+                    if (enemyCollider != null)
+                    {
+                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
+                        enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
+
+                    }
 
                     damage = uDamage;
 
                     break;
                 case attackType.mediumCut_:
                     enemyCollider = Physics2D.OverlapCircle(mediumCut.position, attackRadius, enemyLayer);
-                    enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
-                    if (enemyCollider.GetComponent<PlayerMovment>().isgrounded == false)
+
+                    if (enemyCollider != null)
                     {
+                        enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
+                        if (enemyCollider.GetComponent<PlayerMovment>().isgrounded == false)
+                        {
 
-                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(2 * side, 5), ForceMode2D.Impulse);
+                            enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(2 * side, 5), ForceMode2D.Impulse);
 
 
+                        }
                     }
+                   
 
                     damage = mDamage;
                     break;
                 case attackType.Lowercut_:
                     enemyCollider = Physics2D.OverlapCircle(Lowercut.position, attackRadius, enemyLayer);
-                    enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
 
-                    if (isgrounded == false)
+                    if (enemyCollider != null)
                     {
+                        enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
 
-                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
+                        if (isgrounded == false)
+                        {
+
+                            enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
 
 
+                        }
                     }
-
-
+                 
                     damage = lDamage;
                     break;
                 default:
