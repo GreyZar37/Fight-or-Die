@@ -17,6 +17,7 @@ public class PlayerMovment : MonoBehaviour
     public player playerNum;
     public attackType AttackType;
    [SerializeField] Transform enemy;
+    [SerializeField] string playerNumber;
 
     Rigidbody2D rb;
     public float speed;
@@ -26,6 +27,7 @@ public class PlayerMovment : MonoBehaviour
     bool attacking;
     public float attackCooldown;
     float currentTimer;
+    public float stunTimer;
 
     public int uDamage, mDamage, lDamage;
     int damage;
@@ -41,6 +43,7 @@ public class PlayerMovment : MonoBehaviour
     int side;
 
     Animator anim;
+    [SerializeField] Health hpScript;
 
    [SerializeField] Transform UpperCut, mediumCut, Lowercut;
 
@@ -54,17 +57,15 @@ public class PlayerMovment : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(playerNum == player.playerOne)
-        {
             if(attacking == false && stuned == false && GameManager.gameState == gameState.Combat)
             {
-                horizontal = Input.GetAxisRaw("HorizontalP1");
-                if (Input.GetButtonDown("JumpP1"))
+                horizontal = Input.GetAxisRaw("Horizontal" + playerNumber);
+                if (Input.GetButtonDown("Jump" + playerNumber))
                 {
                     jump();
                 }
 
-                if (Input.GetButtonDown("UpperCutP1"))
+                if (Input.GetButtonDown("UpperCut" + playerNumber))
                 {
                     AttackType = attackType.UpperCut_;
                     anim.SetTrigger("UpperCut");
@@ -72,7 +73,7 @@ public class PlayerMovment : MonoBehaviour
                     attack(AttackType);
 
                 }
-                else if (Input.GetButtonDown("MediumCutP1"))
+                else if (Input.GetButtonDown("MediumCut" + playerNumber))
                 {
                     AttackType = attackType.mediumCut_;
                     anim.SetTrigger("MediumCut");
@@ -80,7 +81,7 @@ public class PlayerMovment : MonoBehaviour
                     attack(AttackType);
 
                 }
-                else if (Input.GetButtonDown("LowerCutP1"))
+                else if (Input.GetButtonDown("LowerCut" + playerNumber))
                 {
 
                     AttackType = attackType.Lowercut_;
@@ -89,12 +90,17 @@ public class PlayerMovment : MonoBehaviour
                     attack(AttackType);
 
                 }
-            }
-          
-       
+                else if(Input.GetAxisRaw("Jump" + playerNumber) > 0.7f)
+                {
+                    jump();
+                }
 
-           
+
+
+
+
         }
+        /*
         else
         {
             if (attacking == false && stuned == false && GameManager.gameState == gameState.Combat)
@@ -137,6 +143,7 @@ public class PlayerMovment : MonoBehaviour
           
           
         }
+        */
         anim.SetFloat("Velocity", Mathf.Abs(horizontal));
 
 
@@ -215,7 +222,7 @@ public class PlayerMovment : MonoBehaviour
                     if (enemyCollider != null)
                     {
                         enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
-                        enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
+                        enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 1;
 
                     }
 
@@ -227,12 +234,18 @@ public class PlayerMovment : MonoBehaviour
 
                     if (enemyCollider != null)
                     {
-                        enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
+                        enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 1;
+
                         if (enemyCollider.GetComponent<PlayerMovment>().isgrounded == false)
                         {
 
-                            enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(2 * side, 5), ForceMode2D.Impulse);
+                            enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(2 * side, 15), ForceMode2D.Impulse);
 
+
+                        }
+                        else
+                        {
+                            enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(15 * side, 0), ForceMode2D.Impulse);
 
                         }
                     }
@@ -245,13 +258,19 @@ public class PlayerMovment : MonoBehaviour
 
                     if (enemyCollider != null)
                     {
-                        enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 2;
+                        enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 1;
+
 
                         if (isgrounded == false)
                         {
 
-                            enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
+                            enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 25), ForceMode2D.Impulse);
 
+
+                        }
+                        else
+                        {
+                            enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(20 * side, 0), ForceMode2D.Impulse);
 
                         }
                     }
@@ -264,6 +283,7 @@ public class PlayerMovment : MonoBehaviour
             if(enemyCollider != null)
             {
               StartCoroutine(enemyCollider.GetComponent<Health>().takeDamage(damage));
+                hpScript.currentStamina += damage;
 
             }
             currentTimer = attackCooldown;

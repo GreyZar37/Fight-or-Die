@@ -21,6 +21,9 @@ public class Health : MonoBehaviour
     int maxHp = 100;
     public int currentHp;
 
+    int maxStamina = 100;
+    public int currentStamina;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -30,6 +33,7 @@ public class Health : MonoBehaviour
         currentHp = maxHp;
 
         healthBar.maxValue = maxHp;
+        stamina.maxValue = maxStamina;
 
     }
 
@@ -37,16 +41,17 @@ public class Health : MonoBehaviour
     void Update()
     {
         healthBar.value = currentHp;
-        
+        stamina.value = currentStamina;
+
     }
 
-  
+
     public IEnumerator takeDamage(int damage)
     {
         anim.SetTrigger("Hit");
         playermov.stuned = true;
         currentHp -= damage;
-
+        currentStamina += damage * 2;
       
          if (currentHp <= 0 && GameManager.gameState == gameState.Combat)
         {
