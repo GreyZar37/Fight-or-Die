@@ -5,6 +5,15 @@ TagManager:
   serializedVersion: 2
   tags:
   - GameManager
+  - HealthP1
+  - HealthP2
+  - StaminaP1
+  - StaminaP2
+  - P1
+  - P2
+  - TextP1
+  - TextP2
+  - Wall
   layers:
   - Default
   - TransparentFX

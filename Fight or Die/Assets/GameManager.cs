@@ -21,7 +21,19 @@ public class GameManager : MonoBehaviour
 
     public static int scoreP1, scoreP2;
 
+    [SerializeField] AudioClip[] start;
+    [SerializeField] AudioClip[] won1, won2;
+    [SerializeField] AudioClip[] ko;
+
+    [SerializeField]  GameObject skeletonHead;
+    [SerializeField] Slider playerOneSl, PlayerTwoSl;
     // Start is called before the first frame update
+
+    float matchTimer = 30f;
+    bool matchDone;
+    [SerializeField] WallDamage walls2;
+    [SerializeField] WallDamage walls1;
+
 
     private void Start()
     {
@@ -32,12 +44,15 @@ public class GameManager : MonoBehaviour
 
         if(scoreP1 == 2)
         {
-            discriptionText.text = "JACOB WON!";
+            discriptionText.text = "Payer 1 WON!";
+            AudioManager.instance.playSound(won1,1);
             StartCoroutine(resetGame());
         }
         else if(scoreP2 == 2)
         {
-            discriptionText.text = "SIMON WON!";
+            discriptionText.text = "Payer 2 WON!";
+            AudioManager.instance.playSound(won2, 1);
+
             StartCoroutine(resetGame());
 
         }
@@ -67,7 +82,28 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        matchTimer -= Time.deltaTime;
+        if(matchTimer <= 0 && matchDone == false)
+        {
+            walls1.move = true;
+            walls2.move = true;
+            matchDone = true;
+ 
+        }
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            SceneManager.LoadScene(0);
+        }
 
+        if(playerOneSl.value > PlayerTwoSl.value)
+        {
+            skeletonHead.transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+        else
+        {
+            skeletonHead.transform.rotation = Quaternion.Euler(0, 0, 0);
+
+        }
     }
 
     public IEnumerator endGame(player playernum)
@@ -75,19 +111,19 @@ public class GameManager : MonoBehaviour
         if(playernum == player.PlayerTwo)
         {
             scoreP1++;
-            discriptionText.text = "SIMON GOT SHIT ON";
-            discriptionText.enabled = true;
-
         }
         else
         {
             scoreP2++;
-            discriptionText.text = "JACOB GOT SHIT ON!!";
-            discriptionText.enabled = true;
         }
 
+        discriptionText.text = "KO!";
+        discriptionText.enabled = true;
+
+        AudioManager.instance.playSound(ko, 1);
+
         yield return new WaitForSeconds(5f);
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(2);
 
     }
 
@@ -96,6 +132,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(2f);
         gameState = gameState.Combat;
         discriptionText.enabled = false;
+        AudioManager.instance.playSound(start, 1);
 
 
     }
@@ -104,6 +141,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(3f);
         scoreP1 = 0;
         scoreP2 = 0;
-        SceneManager.LoadScene(0);
+      Spawner.fighters = new List<GameObject>(1);
+      SceneManager.LoadScene(1);
     }
 }
