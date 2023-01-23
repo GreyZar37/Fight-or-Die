@@ -85,11 +85,16 @@ public class Health : MonoBehaviour
 
     }
 
+    public void stun(float stunTimer)
+    {
+        stunCurrentTimer = stunTimer;
 
-    public IEnumerator takeDamage(int damage, float stunTimer)
+
+    }
+
+    public IEnumerator takeDamage(int damage)
     {
 
-        stunCurrentTimer = stunTimer;
 
         anim.SetTrigger("Hit");
         anim.SetBool("Stunned", true);

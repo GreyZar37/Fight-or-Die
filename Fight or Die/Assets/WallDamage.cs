@@ -35,13 +35,16 @@ public class WallDamage : MonoBehaviour
 
         if(instakill == true)
         {
-            StartCoroutine(collision.GetComponent<Health>().takeDamage(100, .4f));
+            StartCoroutine(collision.GetComponent<Health>().takeDamage(100));
+            collision.GetComponent<Health>().stun(0.5f);
             move = false;
 
         }
         else
         {
-            StartCoroutine(collision.GetComponent<Health>().takeDamage(20, .4f));
+            StartCoroutine(collision.GetComponent<Health>().takeDamage(20));
+            collision.GetComponent<Health>().stun(0.5f);
+
 
         }
     }

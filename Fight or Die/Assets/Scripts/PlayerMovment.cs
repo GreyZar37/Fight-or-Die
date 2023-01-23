@@ -250,15 +250,23 @@ public class PlayerMovment : MonoBehaviour
 
         isgrounded = Physics2D.OverlapCircle(legs.transform.position, 0.1f, ground);
 
-        if (stuned == false || isgrounded)
+        if (stuned == false)
         {
             rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+            print("no!");
 
         }
-        else if (stuned == true && isgrounded == false)
+        else
         {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
+            print("Stunned!");
+
         }
+
+
+
+
+
 
         if ((transform.position.x - enemy.transform.position.x) > 0)
         {
@@ -305,11 +313,14 @@ public class PlayerMovment : MonoBehaviour
 
     IEnumerator attack(attackType type, float animMultiplier)
     {
+      
+
         AudioManager.instance.playSound(attackSound, 1);
         attacking = true;
         anim.speed = 1 * animMultiplier;
         yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length / 2);
 
+     
         switch (type)
         {
 
@@ -317,8 +328,9 @@ public class PlayerMovment : MonoBehaviour
                 enemyCollider = Physics2D.OverlapCircle(UpperCut.position, attackRadius, enemyLayer);
                 if (enemyCollider != null)
                 {
-                    enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
-                    enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 1;
+                    enemyCollider.GetComponent<Health>().stun(0.5f);
+
+                    enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(10 * side, 20), ForceMode2D.Impulse);
 
                 }
 
@@ -330,18 +342,18 @@ public class PlayerMovment : MonoBehaviour
 
                 if (enemyCollider != null)
                 {
-                    enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 1;
+                    enemyCollider.GetComponent<Health>().stun(0.5f);
 
                     if (enemyCollider.GetComponent<PlayerMovment>().isgrounded == false)
                     {
 
-                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(2 * side, 15), ForceMode2D.Impulse);
+                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(1 * side, 15), ForceMode2D.Impulse);
 
 
                     }
                     else
                     {
-                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(15 * side, 0), ForceMode2D.Impulse);
+                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(1 * side, 0), ForceMode2D.Impulse);
 
                     }
                 }
@@ -354,7 +366,7 @@ public class PlayerMovment : MonoBehaviour
 
                 if (enemyCollider != null)
                 {
-                    enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 1;
+                    enemyCollider.GetComponent<Health>().stun(0.5f);
 
 
                     if (isgrounded == false)
@@ -366,7 +378,7 @@ public class PlayerMovment : MonoBehaviour
                     }
                     else
                     {
-                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(20 * side, 0), ForceMode2D.Impulse);
+                        enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(2 * side, 0), ForceMode2D.Impulse);
 
                     }
                 }
@@ -383,7 +395,7 @@ public class PlayerMovment : MonoBehaviour
 
         if (enemyCollider != null)
         {
-            StartCoroutine(enemyCollider.GetComponent<Health>().takeDamage(damage, 0.5f));
+            StartCoroutine(enemyCollider.GetComponent<Health>().takeDamage(damage));
             hpScript.currentStamina += damage;
 
         }
