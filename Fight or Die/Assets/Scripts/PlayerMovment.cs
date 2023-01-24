@@ -313,7 +313,6 @@ public class PlayerMovment : MonoBehaviour
 
     IEnumerator attack(attackType type, float animMultiplier)
     {
-      
 
         AudioManager.instance.playSound(attackSound, 1);
         attacking = true;
@@ -328,7 +327,9 @@ public class PlayerMovment : MonoBehaviour
                 enemyCollider = Physics2D.OverlapCircle(UpperCut.position, attackRadius, enemyLayer);
                 if (enemyCollider != null)
                 {
-                    enemyCollider.GetComponent<Health>().stun(0.5f);
+
+                    enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
+                    enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 1;
 
                     enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(10 * side, 20), ForceMode2D.Impulse);
 
@@ -395,7 +396,8 @@ public class PlayerMovment : MonoBehaviour
 
         if (enemyCollider != null)
         {
-            StartCoroutine(enemyCollider.GetComponent<Health>().takeDamage(damage));
+            enemyCollider.GetComponent<PlayerMovment>().StopAllCoroutines();
+            StartCoroutine(enemyCollider.GetComponent<Health>().takeDamage(damage, 0.5f));
             hpScript.currentStamina += damage;
 
         }
@@ -484,4 +486,9 @@ public class PlayerMovment : MonoBehaviour
         yield return new WaitForSeconds(1);
         exhusted = false;
     }
+    public void stopCorutine()
+    {
+        StopAllCoroutines();
+    }
+    
 }
