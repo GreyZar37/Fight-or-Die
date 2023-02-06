@@ -5,7 +5,7 @@ using UnityEngine;
 public class ShakeScreen : MonoBehaviour
 {
     public static bool isShaking = false;
-    public float duration = 1f;
+    public static float duration = 0.1f;
 
     public AnimationCurve curve;
     Vector3 startPosition;

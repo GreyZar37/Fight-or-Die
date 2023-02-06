@@ -14,6 +14,7 @@ TagManager:
   - TextP1
   - TextP2
   - Wall
+  - Jolt
   layers:
   - Default
   - TransparentFX

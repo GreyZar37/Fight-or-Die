@@ -1,12 +1,11 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections.Generic;
-using System.Collections;
 
 
 public enum attackType
 {
-    UpperCut_, mediumCut_, Lowercut_
+    UpperCut_, mediumCut_, Lowercut_, shoot_
 }
 public enum player
 
@@ -18,7 +17,7 @@ public class PlayerMovment : MonoBehaviour
 {
     public string playerName;
     public Controller control;
-   [ HideInInspector]
+    [HideInInspector]
     public player playerNum;
     public attackType AttackType;
     Transform enemy;
@@ -55,24 +54,27 @@ public class PlayerMovment : MonoBehaviour
     Vector2 movementInput = Vector2.zero;
     bool jumped, middleCut, upperCut, kick, crouched, shoot;
     public bool block;
+    bool stillHoldingBlock;
     float horizontal;
 
     public int playerID;
-    public Transform StartPos ;
+    public Transform StartPos;
 
     [SerializeField] AudioClip[] attackSound;
+    [SerializeField] AudioClip[] walkSound;
 
-
-    [Header ("Combo")]
+    [Header("Combo")]
     float windowTimer = 0.3f;
     float windowTimerCold = 0.6f;
     int combo;
     bool exhusted;
-
+    public bool shooting;
+    [SerializeField] ParticleSystem sheild;
+    [SerializeField] GameObject bullet;
     private void Awake()
     {
 
-      
+
         // transform.position = StartPos.position;
 
     }
@@ -113,29 +115,54 @@ public class PlayerMovment : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-
-        if (isgrounded && horizontal == -1)
+        if (stuned == false)
         {
-            block = true;
+            rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
+
         }
 
-        if(windowTimer <= 0)
+        if (attacking && isgrounded == true || stuned && isgrounded == true || exhusted && isgrounded == true || GameManager.gameState != gameState.Combat)
+        {
+            horizontal = 0;
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
+        }
+        else if (attacking && isgrounded == false)
+        {
+            horizontal = movementInput.x;
+        }
+
+
+        if (!block)
+        {
+            sheild.Stop();
+
+        }
+        else
+        {
+            sheild.Play();
+
+        }
+
+        if (windowTimer <= 0)
         {
             combo = 0;
             anim.speed = 1;
         }
-        if(combo > 0)
+        if (combo > 0)
         {
             windowTimer -= Time.deltaTime;
 
         }
 
-        if(Mathf.Abs( movementInput.x) > 0 || isgrounded == false || attacking)
+        if (Mathf.Abs(movementInput.x) > 0 || isgrounded == false || attacking)
         {
             block = false;
         }
-     
+        else if(stillHoldingBlock == true)
+        {
+            block = stillHoldingBlock;
+        }
+
         if (attacking == false && stuned == false && exhusted == false && GameManager.gameState == gameState.Combat)
         {
             horizontal = movementInput.x;
@@ -144,125 +171,112 @@ public class PlayerMovment : MonoBehaviour
                 jump();
             }
 
-            if (upperCut)
+            if (!shooting)
             {
-                AttackType = attackType.UpperCut_;
-                anim.SetTrigger("UpperCut");
-
-                if (combo == 0)
+                if (upperCut)
                 {
-                    windowTimer = windowTimerCold * 2;
-                    StartCoroutine(attack(AttackType, 1));
-                    combo++;
+                    AttackType = attackType.UpperCut_;
+                    anim.SetTrigger("UpperCut");
+
+                    if (combo == 0)
+                    {
+                        windowTimer = windowTimerCold * 2;
+                        StartCoroutine(attack(AttackType, 1));
+                        combo++;
+
+                    }
+                    else if (windowTimer > 0 && combo < 3)
+                    {
+                        windowTimer = windowTimerCold;
+                        StartCoroutine(attack(AttackType, 2));
+                        combo++;
+
+                    }
+                    else
+                    {
+                        StartCoroutine(attack(AttackType, 1));
+                        combo = 0;
+                        StartCoroutine(exhustedTime());
+
+                    }
+
+
+
+
 
                 }
-                else if (windowTimer > 0 && combo < 3)
+                else if (middleCut)
                 {
-                    windowTimer = windowTimerCold;
-                    StartCoroutine(attack(AttackType, 2));
-                    combo++;
+
+                    AttackType = attackType.mediumCut_;
+                    anim.SetTrigger("MediumCut");
+                    if (combo == 0)
+                    {
+                        windowTimer = windowTimerCold * 2;
+                        StartCoroutine(attack(AttackType, 1));
+                        combo++;
+
+                    }
+                    else if (windowTimer > 0 && combo < 3)
+                    {
+                        windowTimer = windowTimerCold;
+                        StartCoroutine(attack(AttackType, 2));
+                        combo++;
+
+                    }
+                    else
+                    {
+                        StartCoroutine(attack(AttackType, 1));
+                        combo = 0;
+                        StartCoroutine(exhustedTime());
+                    }
+
+
+
+
+
 
                 }
-                else
+                else if (kick)
                 {
-                    StartCoroutine(attack(AttackType, 1));
-                    combo = 0;
-                    StartCoroutine(exhustedTime());
 
+                    AttackType = attackType.Lowercut_;
+                    anim.SetTrigger("LowerCut");
+                    if (combo == 0)
+                    {
+                        windowTimer = windowTimerCold * 2;
+                        StartCoroutine(attack(AttackType, 1));
+                        combo++;
+
+                    }
+                    else if (windowTimer > 0 && combo < 3)
+                    {
+                        print("xD");
+                        windowTimer = windowTimerCold;
+                        StartCoroutine(attack(AttackType, 2));
+                        combo++;
+
+                    }
+                    else
+                    {
+                        StartCoroutine(attack(AttackType, 1));
+                        combo = 0;
+                        StartCoroutine(exhustedTime());
+
+                    }
                 }
-
-
-
-
-
+                else if (shoot && hpScript.currentStamina > 20 )
+                {
+                    StartCoroutine(fireJolt());
+                }
             }
-            else if (middleCut)
-            {
-
-                AttackType = attackType.mediumCut_;
-                anim.SetTrigger("MediumCut");
-                if (combo == 0)
-                {
-                    windowTimer = windowTimerCold * 2;
-                    StartCoroutine(attack(AttackType, 1));
-                    combo++;
-
-                }
-                else if (windowTimer > 0 && combo < 3)
-                {
-                    windowTimer = windowTimerCold;
-                    StartCoroutine(attack(AttackType, 2));
-                    combo++;
-
-                }
-                else
-                {
-                    StartCoroutine(attack(AttackType, 1));
-                    combo = 0;
-                    StartCoroutine(exhustedTime());
-                }
-
-
-
-
-
-
-            }
-            else if (kick)
-            {
-
-                AttackType = attackType.Lowercut_;
-                anim.SetTrigger("LowerCut");
-                if(combo == 0)
-                {
-                    windowTimer = windowTimerCold * 2;
-                    StartCoroutine(attack(AttackType, 1));
-                    combo++;
-
-                }
-                else if (windowTimer > 0 && combo < 3)
-                {
-                    print("xD");
-                    windowTimer = windowTimerCold;
-                    StartCoroutine(attack(AttackType, 2));
-                    combo++;
-
-                }
-                else
-                {
-                    StartCoroutine(attack(AttackType, 1));
-                    combo = 0;
-                    StartCoroutine(exhustedTime());
-
-                }
-
-
-
-
-            }
-
-
-
-
+           
         }
+
         anim.SetFloat("Velocity", Mathf.Abs(horizontal));
 
 
         isgrounded = Physics2D.OverlapCircle(legs.transform.position, 0.1f, ground);
-
-        if (stuned == false)
-        {
-            rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
-            print("no!");
-
-        }
-        else
-        {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y);
-            print("Stunned!");
-
-        }
-
 
 
 
@@ -281,24 +295,17 @@ public class PlayerMovment : MonoBehaviour
         }
 
 
-       
 
-        if (attacking && isgrounded == true || stuned && isgrounded == true)
-        {
-            horizontal = 0;
-        }
-        else
-        {
-            horizontal = 0;
-        }
+
 
 
         if (isgrounded)
         {
             rb.gravityScale = 6;
+
         }
 
-      
+
 
 
     }
@@ -311,6 +318,23 @@ public class PlayerMovment : MonoBehaviour
         }
     }
 
+    IEnumerator fireJolt()
+    {
+        shooting = true;
+        hpScript.currentStamina -= 20;
+        if (side > 0)
+        {
+            Instantiate(bullet, mediumCut.position, Quaternion.Euler(0, 0, 0));
+        }
+        else
+        {
+            Instantiate(bullet, mediumCut.position, Quaternion.Euler(0, 180, 0));
+
+        }
+
+        yield return new WaitForSeconds(1f);
+        shooting = false;
+    }
     IEnumerator attack(attackType type, float animMultiplier)
     {
 
@@ -319,7 +343,7 @@ public class PlayerMovment : MonoBehaviour
         anim.speed = 1 * animMultiplier;
         yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length / 2);
 
-     
+
         switch (type)
         {
 
@@ -327,11 +351,11 @@ public class PlayerMovment : MonoBehaviour
                 enemyCollider = Physics2D.OverlapCircle(UpperCut.position, attackRadius, enemyLayer);
                 if (enemyCollider != null)
                 {
+                    enemyCollider.GetComponent<Health>().stun(0.5f);
+
 
                     enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(5 * side, 20), ForceMode2D.Impulse);
                     enemyCollider.GetComponent<Rigidbody2D>().gravityScale += 1;
-
-                    enemyCollider.GetComponent<Rigidbody2D>().AddForce(new Vector2(10 * side, 20), ForceMode2D.Impulse);
 
                 }
 
@@ -396,8 +420,14 @@ public class PlayerMovment : MonoBehaviour
 
         if (enemyCollider != null)
         {
+
             enemyCollider.GetComponent<PlayerMovment>().StopAllCoroutines();
-            StartCoroutine(enemyCollider.GetComponent<Health>().takeDamage(damage, 0.5f));
+            enemyCollider.GetComponent<PlayerMovment>().attacking = false;
+            enemyCollider.GetComponent<PlayerMovment>().exhusted = false;
+            enemyCollider.GetComponent<PlayerMovment>().shooting = false;
+
+
+            StartCoroutine(enemyCollider.GetComponent<Health>().takeDamage(damage));
             hpScript.currentStamina += damage;
 
         }
@@ -433,12 +463,11 @@ public class PlayerMovment : MonoBehaviour
 
     public void OnBlock(InputAction.CallbackContext context)
     {
-        if(movementInput.x == 0 && attacking == false && stuned == false && isgrounded == true)
-        {
+        stillHoldingBlock = context.action.triggered;
+        if (movementInput.x == 0 && attacking == false && stuned == false && isgrounded == true)
+        { 
             block = context.action.triggered;
         }
-  
-
 
     }
     public void OnUppercut(InputAction.CallbackContext context)
@@ -465,7 +494,7 @@ public class PlayerMovment : MonoBehaviour
     {
         jumped = context.action.triggered;
     }
-   
+
     public void OnCrouch(InputAction.CallbackContext context)
     {
         crouched = context.action.triggered;
@@ -473,7 +502,7 @@ public class PlayerMovment : MonoBehaviour
     }
     public void Shoot(InputAction.CallbackContext context)
     {
-      shoot = context.action.triggered;
+        shoot = context.action.triggered;
     }
 
 
@@ -486,9 +515,9 @@ public class PlayerMovment : MonoBehaviour
         yield return new WaitForSeconds(1);
         exhusted = false;
     }
-    public void stopCorutine()
+
+    public void playWalkSound()
     {
-        StopAllCoroutines();
+        AudioManager.instance.playSound(walkSound, 1);
     }
-    
 }

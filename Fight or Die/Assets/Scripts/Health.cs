@@ -28,12 +28,14 @@ public class Health : MonoBehaviour
 
     [SerializeField] AudioClip[] damagedSound;
     float stunCurrentTimer;
+    [SerializeField] GameObject DeathSkeleton;
 
+    [SerializeField] GameObject CharacterModel;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        
 
         gameMan = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
         anim = GetComponent<Animator>();
@@ -67,8 +69,13 @@ public class Health : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (currentStamina > 100)
+        {
+            currentStamina = 100;
+        }
 
-        if(stunCurrentTimer > 0)
+
+        if (stunCurrentTimer > 0)
         {
             stunCurrentTimer -= Time.deltaTime;
         }
@@ -95,40 +102,41 @@ public class Health : MonoBehaviour
     public IEnumerator takeDamage(int damage)
     {
 
-
-        anim.SetTrigger("Hit");
-        anim.SetBool("Stunned", true);
-
-        AudioManager.instance.playSound(damagedSound, 1);
-        ShakeScreen.isShaking = true;
-        blood.Play();
-
-
-        if(playermov.block == true)
+        if (playermov.block == true)
         {
             playermov.stuned = false;
-            currentHp -= damage/2;
+            currentHp -= damage / 2;
         }
         else
         {
             playermov.stuned = true;
             currentHp -= damage;
             currentStamina += damage * 2;
+            blood.Play();
+            anim.SetTrigger("Hit");
+            anim.SetBool("Stunned", true);
+            AudioManager.instance.playSound(damagedSound, 1);
+
         }
+
+
+        ShakeScreen.isShaking = true;
+
+
+        
        
       
          if (currentHp <= 0 && GameManager.gameState == gameState.Combat)
         {
             StartCoroutine(gameMan.endGame(playermov.playerNum));
+            Instantiate(DeathSkeleton, playermov.gameObject.transform);
+            CharacterModel.SetActive(false);
             GameManager.gameState = gameState.ending;
         }
-         if (playermov.stuned == false)
-        {
-        }
+
         spriteRend.material = hitMaterial;
 
         yield return new WaitForSeconds(0.1f);
-       
         spriteRend.material = originalMaterial;
 
        

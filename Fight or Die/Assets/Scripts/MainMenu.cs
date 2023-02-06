@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 public class MainMenu : MonoBehaviour
 {
     GameObject lastselect;
+    
   
 
     [SerializeField]  UiController uiControllerP1;
@@ -27,9 +28,10 @@ public class MainMenu : MonoBehaviour
         
         if(uiControllerP1.done && uiControllerP2.done)
         {
-            SceneManager.LoadScene(2);
+            SceneManager.LoadScene(Random.Range(2, 4));
         }
 
+        /*
         if (EventSystem.current.currentSelectedGameObject == null)
         {
             EventSystem.current.SetSelectedGameObject(lastselect);
@@ -40,7 +42,7 @@ public class MainMenu : MonoBehaviour
             lastselect = EventSystem.current.currentSelectedGameObject;
 
         }
-
+        */
         
 
     }
