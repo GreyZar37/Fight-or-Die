@@ -27,6 +27,7 @@ public class Health : MonoBehaviour
     public int currentStamina;
 
     [SerializeField] AudioClip[] damagedSound;
+    [SerializeField] AudioClip[] hitSound;
     float stunCurrentTimer;
     [SerializeField] GameObject DeathSkeleton;
 
@@ -116,6 +117,8 @@ public class Health : MonoBehaviour
             anim.SetTrigger("Hit");
             anim.SetBool("Stunned", true);
             AudioManager.instance.playSound(damagedSound, 1);
+            AudioManager.instance.playSound(hitSound, 1);
+
 
         }
 

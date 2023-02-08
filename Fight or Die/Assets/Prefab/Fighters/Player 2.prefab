@@ -223,7 +223,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 0.92589796, b: 0, a: 1}
+      maxColor: {r: 1, g: 0.03196106, b: 0, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -4961,7 +4961,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 1b076c6cee265824f907d198d08c0763, type: 3}
   shooting: 0
   sheild: {fileID: 586943169}
-  bullet: {fileID: 3463567637196299204, guid: b75e13a41f25cb2438e1f061b80a1e12, type: 3}
+  bullet: {fileID: 3463567637196299204, guid: 1de6a185983a2334e8739e05e1736e93, type: 3}
 --- !u!50 &4464481162115861491
 Rigidbody2D:
   serializedVersion: 4
@@ -5043,6 +5043,9 @@ MonoBehaviour:
   damagedSound:
   - {fileID: 8300000, guid: c8aeef04e134c7c408358ba900992358, type: 3}
   - {fileID: 8300000, guid: d53b42a0d4dcafb4cafefba42b7cc491, type: 3}
+  hitSound:
+  - {fileID: 8300000, guid: 5ef4a40571899454eb5bb4b91f2c93e2, type: 3}
+  - {fileID: 8300000, guid: 42a3b1761935f6741a0c860996e56f65, type: 3}
   DeathSkeleton: {fileID: 4293812574483973716, guid: dba27fd148bb53547a5e6c938c4b005b, type: 3}
   CharacterModel: {fileID: 4464481162902733292}
 --- !u!212 &4464481162115861495

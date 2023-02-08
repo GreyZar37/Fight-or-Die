@@ -17,8 +17,7 @@ public class PlayerMovment : MonoBehaviour
 {
     public string playerName;
     public Controller control;
-    [HideInInspector]
-    public player playerNum;
+    [HideInInspector] public player playerNum;
     public attackType AttackType;
     Transform enemy;
 
@@ -47,12 +46,12 @@ public class PlayerMovment : MonoBehaviour
 
     Animator anim;
     [SerializeField] Health hpScript;
-
     [SerializeField] Transform UpperCut, mediumCut, Lowercut;
 
 
     Vector2 movementInput = Vector2.zero;
     bool jumped, middleCut, upperCut, kick, crouched, shoot;
+    [HideInInspector] public bool specialMove;
     public bool block;
     bool stillHoldingBlock;
     float horizontal;
@@ -504,7 +503,7 @@ public class PlayerMovment : MonoBehaviour
     {
         shoot = context.action.triggered;
     }
-
+   
 
     #endregion
 
