@@ -80,7 +80,7 @@ public class PlayerMovment : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        damage = 10;
         if (tag == "P1")
         {
             playerNum = player.playerOne;
@@ -101,9 +101,6 @@ public class PlayerMovment : MonoBehaviour
         {
             enemy = GameObject.FindGameObjectWithTag("P1").transform;
             enemyLayer.value = P1Mask;
-
-
-
         }
 
 
@@ -114,10 +111,10 @@ public class PlayerMovment : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        print(enemyCollider.gameObject.name);
         if (stuned == false)
         {
             rb.velocity = new Vector2(horizontal * speed, rb.velocity.y);
-
         }
 
         if (attacking && isgrounded == true || stuned && isgrounded == true || exhusted && isgrounded == true || GameManager.gameState != gameState.Combat)
@@ -150,7 +147,6 @@ public class PlayerMovment : MonoBehaviour
         if (combo > 0)
         {
             windowTimer -= Time.deltaTime;
-
         }
 
         if (Mathf.Abs(movementInput.x) > 0 || isgrounded == false || attacking)
@@ -424,11 +420,8 @@ public class PlayerMovment : MonoBehaviour
             enemyCollider.GetComponent<PlayerMovment>().attacking = false;
             enemyCollider.GetComponent<PlayerMovment>().exhusted = false;
             enemyCollider.GetComponent<PlayerMovment>().shooting = false;
-
-
             StartCoroutine(enemyCollider.GetComponent<Health>().takeDamage(damage));
             hpScript.currentStamina += damage;
-
         }
 
         yield return new WaitForSeconds(anim.GetCurrentAnimatorStateInfo(0).length / 2);

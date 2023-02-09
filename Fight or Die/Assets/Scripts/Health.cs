@@ -7,11 +7,11 @@ using TMPro;
 public class Health : MonoBehaviour
 {
 
-    [SerializeField] PlayerMovment playermov;
+    [SerializeField] BasePlayer PlayerScript;
     TextMeshProUGUI nameText;
 
-   Slider healthBar;
-   Slider stamina;
+    Slider healthBar;
+    Slider stamina;
 
     [SerializeField] Material originalMaterial, hitMaterial;
     [SerializeField] SpriteRenderer spriteRend;
@@ -45,20 +45,20 @@ public class Health : MonoBehaviour
 
 
 
-        if (playermov.playerNum == player.playerOne){
+        if (PlayerScript.playerNum == player.playerOne){
             nameText = GameObject.FindGameObjectWithTag("TextP1").GetComponent<TextMeshProUGUI>();
             healthBar = GameObject.FindGameObjectWithTag("HealthP1").GetComponent<Slider>();
             stamina = GameObject.FindGameObjectWithTag("StaminaP1").GetComponent<Slider>();
 
         }
-        else if (playermov.playerNum == player.PlayerTwo)
+        else if (PlayerScript.playerNum == player.PlayerTwo)
         {
             nameText = GameObject.FindGameObjectWithTag("TextP2").GetComponent<TextMeshProUGUI>();
 
             healthBar = GameObject.FindGameObjectWithTag("HealthP2").GetComponent<Slider>();
             stamina = GameObject.FindGameObjectWithTag("StaminaP2").GetComponent<Slider>();
         }
-         nameText.text = GetComponent<PlayerMovment>().playerName;
+         nameText.text = GetComponent<BasePlayer>().playerName;
 
          currentHp = maxHp;
 
@@ -82,8 +82,8 @@ public class Health : MonoBehaviour
         }
         else
         {
-            playermov.stuned = false;
-            playermov.stuned = false;
+            PlayerScript.stuned = false;
+            PlayerScript.stuned = false;
             anim.SetBool("Stunned", false);
 
         }
@@ -103,14 +103,14 @@ public class Health : MonoBehaviour
     public IEnumerator takeDamage(int damage)
     {
 
-        if (playermov.block == true)
+        if (PlayerScript.block == true)
         {
-            playermov.stuned = false;
+            PlayerScript.stuned = false;
             currentHp -= damage / 2;
         }
         else
         {
-            playermov.stuned = true;
+            PlayerScript.stuned = true;
             currentHp -= damage;
             currentStamina += damage * 2;
             blood.Play();
@@ -131,8 +131,8 @@ public class Health : MonoBehaviour
       
          if (currentHp <= 0 && GameManager.gameState == gameState.Combat)
         {
-            StartCoroutine(gameMan.endGame(playermov.playerNum));
-            Instantiate(DeathSkeleton, playermov.gameObject.transform);
+            StartCoroutine(gameMan.endGame(PlayerScript.playerNum));
+            Instantiate(DeathSkeleton, PlayerScript.gameObject.transform);
             CharacterModel.SetActive(false);
             GameManager.gameState = gameState.ending;
         }

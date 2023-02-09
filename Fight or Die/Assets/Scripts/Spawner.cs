@@ -30,8 +30,7 @@ public class Spawner : MonoBehaviour
     {
 
         Debug.Log("PlayerInput ID: " + playerInput.playerIndex);
-        playerInput.gameObject.GetComponent<PlayerMovment>().playerID = playerInput.playerIndex + 1;
-        playerInput.gameObject.GetComponent<PlayerMovment>().StartPos = spawnLocations[playerInput.playerIndex].transform;
+        playerInput.gameObject.GetComponent<BasePlayer>().StartPos = spawnLocations[playerInput.playerIndex].transform;
 
     }
 

@@ -9,38 +9,68 @@ public enum playerNumber
 
 public class BasePlayer : MonoBehaviour
 {
+    public player playerNum;
+
+    //Stats
     public string playerName;
     public float speed;
     public float jumpForce;
     public float attackRadius;
+    public int damage;
+    public bool block;
 
-    bool attacking;
+    [HideInInspector] public bool attacking;
     public float stunTimer;
     public bool stuned;
-    int side;
 
-
+    //Enemy
     public LayerMask ground, enemyLayer;
     public LayerMask P1Mask, P2Mask;
+    [HideInInspector] public Collider2D enemyCollider;
 
-    [SerializeField] Transform legs;
+    //Controller
+    public Controller control;
+    [HideInInspector] public Transform enemy;
+    [HideInInspector] public Transform StartPos;
+
+    //Movement
+    [HideInInspector] public Vector2 movementInput;
+    [HideInInspector] public float horizontal;
+    [HideInInspector] public int side;
+
+    public Transform legs;
     public bool isgrounded;
 
-    Animator anim;
 
-    [SerializeField] Health hpScript;
-    public Transform StartPos;
+    [Header("Combo")]
+    [HideInInspector] public float windowTimer = 0.3f;
+    [HideInInspector] public float windowTimerCold = 0.6f;
+    [HideInInspector] public int combo;
+    [HideInInspector] public bool exhusted;
 
 
-    // Start is called before the first frame update
-    void Start()
+    //Sounds
+    public AudioClip[] attackSound;
+    public AudioClip[] walkSound;
+
+    //
+    [HideInInspector] public Rigidbody2D rb;
+    [HideInInspector] public Animator anim;
+    [HideInInspector] public Health hpScript;
+
+    public Transform UpperCut, mediumCut, Lowercut;
+
+
+    private void OnDisable()
     {
-        
+        control.Disable();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnEnable()
     {
-        
+        control = new Controller();
+        control.Enable();
+
     }
+
 }
